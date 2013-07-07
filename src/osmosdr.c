@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include "osmosdr.h"
 #include "sam3u.h"
-#include "lattice/hardware.h"
 
 int osmoSDRDetect(HANDLE fd)
 {
@@ -11,12 +10,7 @@ int osmoSDRDetect(HANDLE fd)
 	if(sam3uDetect(fd, &chipID) < 0)
 		return -1;
 
-	if((chipID & 0xffffffe0) == 0x28000960) {
-		printf("Chip ID: 0x%08x -- ok\n", chipID);
-	} else {
-		printf("Chip ID: 0x%08x -- ERROR\n", chipID);
-		return -1;
-	}
+	printf("Chip ID: 0x%08x -- ok\n", chipID);
 
 	return 0;
 }
@@ -110,30 +104,3 @@ int osmoSDRFlashMCU(HANDLE fd, const void* bin, size_t binSize)
 
 // HACK
 short int ispEntryPoint();
-
-int osmoSDRFlashFPGA(HANDLE fd, const void* algo, size_t algoSize, const void* bin, size_t binSize)
-{
-	g_ispFd = fd;
-	g_ispAlgo = (uint8_t*)algo;
-	g_ispAlgoSize = algoSize;
-	g_ispData = (uint8_t*)bin;
-	g_ispDataSize = binSize;
-
-	if(sam3uWrite32(fd, 0x400e0410, (1 << 11)) < 0)
-		return -1;
-
-	if(sam3uWrite32(fd, 0x400e0e00 + 0x44, (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)) < 0)
-		return -1;
-	if(sam3uWrite32(fd, 0x400e0e00 + 0x60, (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)) < 0)
-		return -1;
-	if(sam3uWrite32(fd, 0x400e0e00 + 0x54, (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)) < 0)
-		return -1;
-	if(sam3uWrite32(fd, 0x400e0e00 + 0x10, (1 << 5) | (1 << 7) | (1 << 8)) < 0)
-		return -1;
-	if(sam3uWrite32(fd, 0x400e0e00 + 0x00, (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8)) < 0)
-		return -1;
-
-	ispEntryPoint();
-
-	return 0;
-}

@@ -17,7 +17,6 @@ static int printSyntax()
 		"  - detect: detect OsmoSDR and print unique ID\n"
 		"  - blink: blink LEDs on board\n"
 		"  - ramload image.bin: load image.bin into SRAM and start it\n"
-		"  - flashfpga algo.vme data.vme: write data.vme to FPGA FLASH using algo.vme\n"
 		"  - flashmcu image.bin: write image.bin to MCU FLASH\n");
 
 	return EXIT_FAILURE;
@@ -69,23 +68,6 @@ int main(int argc, char* argv[])
 			res = osmoSDRDetect(fd);
 		if(res >= 0)
 			res = osmoSDRRamLoad(fd, bin, binSize);
-		serialClose(fd);
-	} else if(strcmp(argv[2], "flashfpga") == 0) {
-		void* algo;
-		size_t algoSize;
-		if(argc != 5)
-			return printSyntax();
-		if((algo = loadFile(argv[3], &algoSize)) == NULL)
-			return EXIT_FAILURE;
-		if((bin = loadFile(argv[4], &binSize)) == NULL)
-			return EXIT_FAILURE;
-		if((fd = serialOpen(argv[1])) == INVALID_HANDLE_VALUE)
-			return EXIT_FAILURE;
-		res = 0;
-		if(res >= 0)
-			res = osmoSDRDetect(fd);
-		if(res >= 0)
-			res = osmoSDRFlashFPGA(fd, algo, algoSize, bin, binSize);
 		serialClose(fd);
 	} else if(strcmp(argv[2], "flashmcu") == 0) {
 		if(argc != 4)
