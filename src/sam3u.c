@@ -223,12 +223,12 @@ int sam3uFlash(HANDLE fd, int bank, const void* bin, size_t binSize)
 		goto error;
 	if(sam3uRead32(fd, regBase + 0x0c, &flNbPlane) < 0)
 		goto error;
-
 	printf(" -- ok\n");
 	printf("Flash ID:         0x%08x\n", flID);
 	printf("Flash size:       %d Bytes\n", flSize);
 	printf("Page size:        %d Bytes\n", flPageSize);
 	printf("Number of planes: %d\n", flNbPlane);
+	if (flSize == 0) { printf("is ERASE closed?"); goto error; }
 
 #if 1
 	printf("erasing flash"); fflush(stdout);
